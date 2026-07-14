@@ -165,6 +165,10 @@ textarea {
   cursor: grabbing;
 }
 
+.logo-stage[data-touch-hotspot-active="true"] {
+  animation-play-state: paused;
+}
+
 .logo-orbit-layer,
 .hotspot-layer {
   position: absolute;
@@ -189,6 +193,7 @@ textarea {
 
 .hotspot-anchor {
   position: absolute;
+  z-index: 1;
   min-width: 50px;
   min-height: 50px;
   border: 0;
@@ -201,6 +206,12 @@ textarea {
   touch-action: manipulation;
   transform: translateZ(12px);
   -webkit-tap-highlight-color: transparent;
+}
+
+.hotspot-anchor:is(:hover, :focus-visible),
+.hotspot-anchor[data-active="true"],
+.hotspot-anchor[data-hovered="true"] {
+  z-index: 6;
 }
 
 .hotspot-glow {
@@ -296,6 +307,10 @@ textarea {
   transform: translate(-50%, -100%) translateY(0);
 }
 
+.hotspot-anchor[data-active="true"] .hotspot-label {
+  pointer-events: auto;
+}
+
 .hotspot-anchor[data-label-position="below"]:is(:hover, :focus-visible) .hotspot-label,
 .hotspot-anchor[data-label-position="below"][data-active="true"] .hotspot-label,
 .hotspot-anchor[data-label-position="below"][data-hovered="true"] .hotspot-label,
@@ -355,7 +370,23 @@ textarea {
   }
 
   .hotspot-label {
-    max-width: min(38vw, 9rem);
+    min-height: 44px;
+    max-width: min(72vw, 13.5rem);
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 0.72rem;
+    font-size: 0.78rem;
+    box-shadow: 0 0 22px rgba(255, 255, 255, 0.12);
+  }
+
+  .hotspot-open-hint {
+    display: inline-block;
+    min-height: 24px;
+    align-content: center;
+    margin-left: 0.08rem;
+    padding-left: 0.5rem;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.86);
   }
 
   .hotspot-anchor[data-label-position="left"] .hotspot-label,

@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import {
   useEffect,
+  useCallback,
   useRef,
   useState,
   type FocusEvent as ReactFocusEvent,
@@ -23,6 +24,7 @@ const MAX_DISPLAY_ROTATE_X = 10;
 const MAX_DISPLAY_ROTATE_Y = 14;
 const ROTATION_SENSITIVITY = 0.055;
 const MAX_VELOCITY = 0.075;
+const DRAG_START_THRESHOLD = 12;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -34,6 +36,7 @@ export function InteractiveLogo() {
   const [introResourceId, setIntroResourceId] = useState<RitualResourceId | null>(null);
   const [activeResourceId, setActiveResourceId] = useState<RitualResourceId | null>(null);
   const [hoveredResourceId, setHoveredResourceId] = useState<RitualResourceId | null>(null);
+  const [isTouchHotspotActive, setIsTouchHotspotActive] = useState(false);
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -44,8 +47,24 @@ export function InteractiveLogo() {
   const draggingRef = useRef(false);
   const didDragRef = useRef(false);
   const lastPointerTypeRef = useRef("mouse");
+  const activeResourceIdRef = useRef<RitualResourceId | null>(null);
+  const touchHotspotActiveRef = useRef(false);
+  const hotspotPointerRef = useRef<{
+    resourceId: RitualResourceId;
+    wasActive: boolean;
+  } | null>(null);
   const lastPointerRef = useRef({ x: 0, y: 0, time: 0 });
   const startPointerRef = useRef({ x: 0, y: 0 });
+
+  const setActiveResource = useCallback((resourceId: RitualResourceId | null) => {
+    activeResourceIdRef.current = resourceId;
+    setActiveResourceId(resourceId);
+  }, []);
+
+  const setTouchHotspotActive = useCallback((active: boolean) => {
+    touchHotspotActiveRef.current = active;
+    setIsTouchHotspotActive(active);
+  }, []);
 
   useEffect(() => {
     if (reduceMotion) return;
@@ -67,7 +86,12 @@ export function InteractiveLogo() {
   useAnimationFrame((time, delta) => {
     if (reduceMotion) return;
 
-    if (!draggingRef.current) {
+    if (touchHotspotActiveRef.current) {
+      velocityX.current = 0;
+      velocityY.current = 0;
+      dragRotateX.current *= Math.pow(0.94, delta / 16.67);
+      dragRotateY.current *= Math.pow(0.94, delta / 16.67);
+    } else if (!draggingRef.current) {
       const velocityDecay = Math.pow(0.925, delta / 16.67);
       const returnHome = Math.pow(0.987, delta / 16.67);
 
@@ -90,8 +114,9 @@ export function InteractiveLogo() {
     }
 
     const seconds = time / 1000;
-    const idleX = Math.cos(seconds * 0.28) * 1.4;
-    const idleY = Math.sin(seconds * 0.34) * 3.1 + Math.cos(seconds * 0.16) * 0.8;
+    const idleScale = touchHotspotActiveRef.current ? 0 : 1;
+    const idleX = Math.cos(seconds * 0.28) * 1.4 * idleScale;
+    const idleY = (Math.sin(seconds * 0.34) * 3.1 + Math.cos(seconds * 0.16) * 0.8) * idleScale;
 
     rotateX.set(clamp(dragRotateX.current + idleX, -MAX_DISPLAY_ROTATE_X, MAX_DISPLAY_ROTATE_X));
     rotateY.set(clamp(dragRotateY.current + idleY, -MAX_DISPLAY_ROTATE_Y, MAX_DISPLAY_ROTATE_Y));
@@ -102,26 +127,27 @@ export function InteractiveLogo() {
 
     function closeActiveHotspot(event: PointerEvent) {
       if (stageRef.current?.contains(event.target as Node)) return;
-      setActiveResourceId(null);
+      setActiveResource(null);
+      setTouchHotspotActive(false);
     }
 
     window.addEventListener("pointerdown", closeActiveHotspot);
 
     return () => window.removeEventListener("pointerdown", closeActiveHotspot);
-  }, [activeResourceId]);
+  }, [activeResourceId, setActiveResource, setTouchHotspotActive]);
 
-  function endDrag() {
+  const endDrag = useCallback(() => {
     draggingRef.current = false;
     setIsDragging(false);
-  }
+  }, []);
 
-  function handleDragMove(
+  const handleDragMove = useCallback((
     clientX: number,
     clientY: number,
     timeStamp: number,
     pointerType: string,
     preventDefault: () => void,
-  ) {
+  ) => {
     if (!draggingRef.current) return;
 
     const last = lastPointerRef.current;
@@ -131,8 +157,18 @@ export function InteractiveLogo() {
     const totalDeltaX = clientX - startPointerRef.current.x;
     const totalDeltaY = clientY - startPointerRef.current.y;
 
-    if (Math.hypot(totalDeltaX, totalDeltaY) > 5) {
+    if (!didDragRef.current && Math.hypot(totalDeltaX, totalDeltaY) <= DRAG_START_THRESHOLD) {
+      return;
+    }
+
+    if (!didDragRef.current) {
       didDragRef.current = true;
+      setActiveResource(null);
+      setTouchHotspotActive(false);
+      setIsDragging(true);
+    }
+
+    if (didDragRef.current) {
       if (pointerType === "touch" || pointerType === "pen") preventDefault();
     }
 
@@ -152,7 +188,7 @@ export function InteractiveLogo() {
     dragRotateX.current = nextRotateX;
     dragRotateY.current = nextRotateY;
     lastPointerRef.current = { x: clientX, y: clientY, time: timeStamp };
-  }
+  }, [setActiveResource, setTouchHotspotActive]);
 
   useEffect(() => {
     if (!isDragging || reduceMotion) return;
@@ -172,7 +208,7 @@ export function InteractiveLogo() {
       window.removeEventListener("pointerup", endDrag);
       window.removeEventListener("pointercancel", endDrag);
     };
-  }, [isDragging, reduceMotion]);
+  }, [endDrag, handleDragMove, isDragging, reduceMotion]);
 
   function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (reduceMotion) return;
@@ -180,7 +216,7 @@ export function InteractiveLogo() {
     lastPointerTypeRef.current = event.pointerType;
     draggingRef.current = true;
     didDragRef.current = false;
-    setIsDragging(true);
+    setIsDragging(false);
     lastPointerRef.current = { x: event.clientX, y: event.clientY, time: event.timeStamp };
     startPointerRef.current = { x: event.clientX, y: event.clientY };
     velocityX.current = 0;
@@ -195,8 +231,21 @@ export function InteractiveLogo() {
     });
   }
 
-  function handleHotspotPointerDown(event: ReactPointerEvent<HTMLAnchorElement>) {
+  function handleHotspotPointerDown(
+    event: ReactPointerEvent<HTMLAnchorElement>,
+    resourceId: RitualResourceId,
+  ) {
     lastPointerTypeRef.current = event.pointerType;
+
+    if (event.pointerType !== "mouse") {
+      const wasActive = activeResourceIdRef.current === resourceId;
+      hotspotPointerRef.current = { resourceId, wasActive };
+
+      if (!wasActive) {
+        setActiveResource(resourceId);
+        setTouchHotspotActive(true);
+      }
+    }
   }
 
   function handleHotspotPointerEnter(
@@ -229,7 +278,8 @@ export function InteractiveLogo() {
   }
 
   function handleHotspotBlur() {
-    setActiveResourceId(null);
+    setActiveResource(null);
+    setTouchHotspotActive(false);
     setHoveredResourceId(null);
   }
 
@@ -241,10 +291,16 @@ export function InteractiveLogo() {
 
     if (!isTouchActivation) return;
 
-    if (activeResourceId !== resourceId) {
+    const pointerStartedOnActiveResource =
+      hotspotPointerRef.current?.resourceId === resourceId && hotspotPointerRef.current.wasActive;
+
+    if (!pointerStartedOnActiveResource) {
       event.preventDefault();
-      setActiveResourceId(resourceId);
+      setActiveResource(resourceId);
+      setTouchHotspotActive(true);
     }
+
+    hotspotPointerRef.current = null;
   }
 
   function handleClickCapture(event: ReactMouseEvent<HTMLDivElement>) {
@@ -259,6 +315,7 @@ export function InteractiveLogo() {
       ref={stageRef}
       className="logo-stage"
       data-dragging={isDragging ? "true" : undefined}
+      data-touch-hotspot-active={isTouchHotspotActive ? "true" : undefined}
       onClickCapture={handleClickCapture}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -308,7 +365,7 @@ export function InteractiveLogo() {
                 onBlur={handleHotspotBlur}
                 onClick={(event) => handleHotspotClick(event, resource.id)}
                 onFocus={(event) => handleHotspotFocus(event, resource.id)}
-                onPointerDown={handleHotspotPointerDown}
+                onPointerDown={(event) => handleHotspotPointerDown(event, resource.id)}
                 onPointerEnter={(event) => handleHotspotPointerEnter(event, resource.id)}
                 onPointerLeave={(event) => handleHotspotPointerLeave(event, resource.id)}
                 style={{
