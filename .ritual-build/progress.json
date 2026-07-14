@@ -1,0 +1,83 @@
+{
+  "intent": "build",
+  "features": [
+    "Next.js",
+    "TypeScript",
+    "Tailwind",
+    "Framer Motion",
+    "Ritual educational shortcut dApp",
+    "logo-aligned transparent hotspots",
+    "first-load sequential intro reveal",
+    "reduced-motion support"
+  ],
+  "current_phase": 6,
+  "phases": [
+    {
+      "phase": 0,
+      "name": "Intake",
+      "status": "complete",
+      "artifacts": [
+        "User supplied complete rebuild specification",
+        "User explicitly removed dashboard, wallet, contract, search, filters, progress, and tour UI"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Frontend",
+      "status": "complete",
+      "artifacts": [
+        "src/data/ritualLinks.ts",
+        "src/app/page.tsx",
+        "src/components",
+        "src/components/InteractiveLogo.tsx",
+        "public/ritual-logo.png",
+        "public/ritual-starfield.jpg"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Deployment scope",
+      "status": "complete",
+      "artifacts": [
+        "No onchain contract required for the current educational shortcut dApp",
+        "Ritual testnet-only deployment boundary documented in README.md"
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Testing",
+      "status": "complete",
+      "artifacts": [
+        "npm run lint passed",
+        "npm run typecheck passed",
+        "npm run build passed",
+        "Production local preview verified at http://127.0.0.1:3002",
+        "Interactive logo drag and idle rotation verified",
+        "Music toggle and looped audio element verified"
+      ]
+    }
+  ],
+  "files_read": [
+    ".codex/skills/ritual-dapp-skills/README.md",
+    ".codex/skills/ritual-dapp-skills/skills/ritual/SKILL.md",
+    ".codex/skills/ritual-dapp-skills/agents/ritual-dapp-builder.md",
+    ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-frontend/SKILL.md",
+    ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-design/SKILL.md",
+    ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-deploy/SKILL.md",
+    ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-testing/SKILL.md",
+    ".codex/skills/ritual-dapp-skills/templates/nextjs-starter/package.json.tmpl",
+    ".codex/skills/ritual-dapp-skills/templates/nextjs-starter/wagmi.config.tmpl"
+  ],
+  "next_file": null,
+  "markers": {
+    "chain_connection": false,
+    "wallet_funded": false,
+    "contract_compiled": false,
+    "contract_deployed": false,
+    "precompile_simulated": false,
+    "precompile_settled": false,
+    "frontend_renders": true,
+    "frontend_connects": false,
+    "e2e_complete": true
+  }
+}
