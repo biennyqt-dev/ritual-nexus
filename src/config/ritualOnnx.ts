@@ -1,4 +1,4 @@
-import { defineChain, parseAbi, zeroAddress, type Address } from "viem";
+import { defineChain, parseAbi, type Address } from "viem";
 
 export const ritualTestnet = defineChain({
   id: 1979,
@@ -66,7 +66,8 @@ export const riskSignalFields = [
 ] as const;
 
 export const ritualRiskEngineAddress = (
-  process.env.NEXT_PUBLIC_RITUAL_RISK_ENGINE_ADDRESS || zeroAddress
+  process.env.NEXT_PUBLIC_RITUAL_RISK_ENGINE_ADDRESS ||
+  "0x4af3c08b45138645c3acca83e195710c48279ee1"
 ) as Address;
 
 export const ritualRiskEngineAbi = parseAbi([
