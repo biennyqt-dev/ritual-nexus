@@ -467,8 +467,8 @@ textarea {
 }
 
 .onnx-header h1 {
-  font-size: clamp(1.6rem, 4vw, 3.25rem);
-  line-height: 0.94;
+  font-size: clamp(1.18rem, 2.7vw, 1.85rem);
+  line-height: 1;
 }
 
 .onnx-header-actions,
@@ -593,6 +593,7 @@ textarea {
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .onnx-panel {
@@ -724,6 +725,36 @@ textarea {
 
 .onnx-result-copy {
   min-height: 3.6rem;
+}
+
+.onnx-transaction-link {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.42rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 0.84rem;
+  font-weight: 800;
+  padding: 0 0.82rem;
+  text-decoration: none;
+  transition:
+    border-color 130ms ease,
+    background-color 130ms ease,
+    box-shadow 130ms ease,
+    transform 130ms ease;
+}
+
+.onnx-transaction-link:hover,
+.onnx-transaction-link:focus-visible {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.11);
+  outline: 0;
+  transform: translateY(-1px);
 }
 
 .onnx-facts {

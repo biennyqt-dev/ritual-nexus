@@ -3,19 +3,14 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
-  ritualExplorerAddressUrl,
-  ritualOnnxPrecompileAddress,
-  ritualRiskModel,
-  ritualTestnet,
   riskSignalDefaults,
   riskSignalFields,
 } from "@/config/ritualOnnx";
 import { useRitualRiskEngine } from "@/hooks/useRitualRiskEngine";
 import {
   describeRisk,
-  encodeRitualTensorPreview,
   type RiskResult,
 } from "@/services/ritualTensor";
 
@@ -39,11 +34,9 @@ function resultTone(result: RiskResult | null) {
 export function OnnxPlayground() {
   const reduceMotion = useReducedMotion();
   const [inputs, setInputs] = useState<number[]>([...riskSignalDefaults]);
-  const tensorPreview = useMemo(() => encodeRitualTensorPreview(inputs), [inputs]);
   const {
     account,
     connect,
-    contractAddress,
     error,
     isConfigured,
     isConnecting,
@@ -112,22 +105,12 @@ export function OnnxPlayground() {
           native ONNX precompile and receives the prediction in the same transaction.
         </p>
 
-        <div className="onnx-flow" aria-label="Ritual ONNX inference flow">
-          <span>Input</span>
-          <span>RitualTensor</span>
-          <span>Smart contract</span>
-          <span>ONNX precompile</span>
-          <span>Model result</span>
-        </div>
-
         <div className="onnx-grid">
           <section className="onnx-panel onnx-panel--inputs" aria-labelledby="onnx-inputs-title">
             <div className="onnx-panel-heading">
               <div>
                 <h2 id="onnx-inputs-title">Model Inputs</h2>
-                <p>
-                  Official Ritual sample model: ten FLOAT32 signals with shape [1, 10].
-                </p>
+                <p>Adjust the ten signals, then run the model on Ritual Testnet.</p>
               </div>
               <button type="button" className="onnx-text-button" onClick={resetInputs}>
                 Reset
@@ -203,74 +186,13 @@ export function OnnxPlayground() {
                 : "Use the sample signals or tune the values, then run the model on Ritual Testnet."}
             </p>
 
-            <dl className="onnx-facts">
-              <div>
-                <dt>Network</dt>
-                <dd>
-                  {ritualTestnet.name} ({ritualTestnet.id})
-                </dd>
-              </div>
-              <div>
-                <dt>Contract</dt>
-                <dd>
-                  {isConfigured ? (
-                    <a
-                      href={ritualExplorerAddressUrl(contractAddress)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {shortHex(contractAddress)}
-                    </a>
-                  ) : (
-                    "Pending"
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt>ONNX precompile</dt>
-                <dd>{shortHex(ritualOnnxPrecompileAddress)}</dd>
-              </div>
-              <div>
-                <dt>Tensor dtype</dt>
-                <dd>FLOAT32 / Ritual dtype {tensorPreview.dtype}</dd>
-              </div>
-              <div>
-                <dt>Tensor shape</dt>
-                <dd>[{tensorPreview.shape.join(", ")}]</dd>
-              </div>
-              {lastTxUrl ? (
-                <div>
-                  <dt>Transaction</dt>
-                  <dd>
-                    <a href={lastTxUrl} target="_blank" rel="noreferrer">
-                      View on explorer
-                    </a>
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
+            {lastTxUrl ? (
+              <a className="onnx-transaction-link" href={lastTxUrl} target="_blank" rel="noreferrer">
+                View transaction on explorer
+              </a>
+            ) : null}
           </section>
         </div>
-
-        <section className="onnx-panel onnx-panel--details" aria-labelledby="onnx-details-title">
-          <div>
-            <h2 id="onnx-details-title">Model and Tensor</h2>
-            <p>
-              This is a Ritual Testnet educational demo, not financial advice. The model ID is pinned
-              to a full commit hash and the visible result is decoded from the contract response.
-            </p>
-          </div>
-          <div className="onnx-detail-grid">
-            <div>
-              <span>Model</span>
-              <code>{ritualRiskModel.id}</code>
-            </div>
-            <div>
-              <span>Encoded RitualTensor</span>
-              <code>{shortHex(tensorPreview.encoded, 18, 18)}</code>
-            </div>
-          </div>
-        </section>
       </motion.section>
     </main>
   );
