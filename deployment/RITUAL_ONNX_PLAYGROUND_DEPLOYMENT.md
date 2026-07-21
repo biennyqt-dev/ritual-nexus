@@ -47,11 +47,11 @@ This file records the Ritual Risk Engine contract used by the ONNX AI Playground
 
 ## Deployment Status
 
-- Status: Not deployed from this session yet
-- Deployment date: Pending
-- Contract address: Pending
-- Deployment transaction hash: Pending
-- Explorer link: Pending
+- Status: Deployed to Ritual testnet
+- Deployment date: July 21, 2026
+- Contract address: `0x4af3c08b45138645c3acca83e195710c48279ee1`
+- Deployment transaction hash: `0xe7923fcd05a22879dc8a20f8a9186d51e373feea8971ca05c46f8644552de9b3`
+- Explorer link: `https://explorer.ritualfoundation.org/address/0x4af3c08b45138645c3acca83e195710c48279ee1`
 - Verification status: Pending
 
 ## Required Local Environment
@@ -83,3 +83,4 @@ forge verify-contract --chain 1979 --watch --verifier custom --verifier-url "$RI
 ```
 
 Do not deploy this contract to Ethereum, Sepolia, or any non-Ritual chain.
+
