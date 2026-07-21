@@ -9,8 +9,11 @@
     "logo-aligned transparent hotspots",
     "first-load sequential intro reveal",
     "reduced-motion support"
+    ,
+    "Ritual ONNX AI Playground",
+    "RitualRiskEngine ONNX precompile contract"
   ],
-  "current_phase": 6,
+  "current_phase": 5,
   "phases": [
     {
       "phase": 0,
@@ -36,11 +39,12 @@
     },
     {
       "phase": 5,
-      "name": "Deployment scope",
-      "status": "complete",
+      "name": "ONNX contract and deployment scope",
+      "status": "in_progress",
       "artifacts": [
-        "No onchain contract required for the current educational shortcut dApp",
-        "Ritual testnet-only deployment boundary documented in README.md"
+        "RitualRiskEngine.sol calls Ritual ONNX precompile 0x0000000000000000000000000000000000000800",
+        "Pinned model hf/Ritual-Net/sample_linreg/linreg_10_features.onnx@fd0501654c4144a9900a670c5c9a074b6bd3d4ef",
+        "ONNX deployment record added in deployment/RITUAL_ONNX_PLAYGROUND_DEPLOYMENT.md"
       ]
     },
     {
@@ -51,7 +55,9 @@
         "npm run lint passed",
         "npm run typecheck passed",
         "npm run build passed",
+        "forge test -vvv passed for RitualRiskEngine",
         "Production local preview verified at http://127.0.0.1:3002",
+        "Production local preview smoke test passed for / and /onnx at http://127.0.0.1:3004",
         "Interactive logo drag and idle rotation verified",
         "Music toggle and looped audio element verified"
       ]
@@ -64,6 +70,7 @@
     ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-frontend/SKILL.md",
     ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-design/SKILL.md",
     ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-deploy/SKILL.md",
+    ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-onnx/SKILL.md",
     ".codex/skills/ritual-dapp-skills/skills/ritual-dapp-testing/SKILL.md",
     ".codex/skills/ritual-dapp-skills/templates/nextjs-starter/package.json.tmpl",
     ".codex/skills/ritual-dapp-skills/templates/nextjs-starter/wagmi.config.tmpl"
@@ -72,9 +79,9 @@
   "markers": {
     "chain_connection": false,
     "wallet_funded": false,
-    "contract_compiled": false,
+    "contract_compiled": true,
     "contract_deployed": false,
-    "precompile_simulated": false,
+    "precompile_simulated": true,
     "precompile_settled": false,
     "frontend_renders": true,
     "frontend_connects": false,
